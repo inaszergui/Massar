@@ -1,0 +1,1267 @@
+```react
+import React, { useState, useEffect } from 'react';
+import { 
+  Heart, 
+  Sparkles, 
+  Edit3, 
+  CheckCircle, 
+  Trash2, 
+  BookOpen, 
+  Plus, 
+  Calendar, 
+  Smile, 
+  ChevronRight,
+  Compass, 
+  Target, 
+  Award,
+  TrendingUp,
+  Briefcase,
+  Layers,
+  Sparkle
+} from 'lucide-react';
+
+export default function App() {
+  // Navigation State
+  const [activeTab, setActiveTab] = useState('home');
+
+  // Mood Tracker State
+  const [mood, setMood] = useState('happy');
+
+  // 1. Brainstorming & Ideas State
+  const [ideas, setIdeas] = useState([
+    { id: 1, title: 'مشروع كتابة قصة قصيرة', desc: 'قصة دافئة عن فتاة تصنع الشموع المعطرة وتنشر الدفء في مدينتها.', tag: 'إبداع', date: '2026-05-17', color: 'bg-rose-50' },
+    { id: 2, title: 'إعادة تصميم غرفتي', desc: 'إضافة إضاءة دافئة، نباتات صغيرة، وأرفف خشبية بيضاء للكتب.', tag: 'شخصي', date: '2026-05-16', color: 'bg-pink-50' }
+  ]);
+  const [newIdeaTitle, setNewIdeaTitle] = useState('');
+  const [newIdeaDesc, setNewIdeaDesc] = useState('');
+  const [newIdeaTag, setNewIdeaTag] = useState('إبداع');
+
+  // 2. Quick Notes State
+  const [quickNote, setQuickNote] = useState(
+    "هنا مساحتكِ الحرة.. \nاكتبي كل ما يخطر ببالكِ دون قيود. قائمة مشتريات، اسم كتاب تودين قراءته، أو حتى كلمة دافئة سمعتِها اليوم وتودين الاحتفاظ بجمالها."
+  );
+
+  // 3. Daily Tasks State
+  const [tasks, setTasks] = useState([
+    { id: 1, text: 'شرب 8 أكواب من الماء', completed: true },
+    { id: 2, text: 'قراءة 10 صفحات من كتابي المفضل', completed: false },
+    { id: 3, text: 'تخصيص 15 دقيقة للتأمل الهادئ والاسترخاء', completed: false },
+    { id: 4, text: 'كتابة رسالة الامتنان اليومية', completed: true }
+  ]);
+  const [newTaskText, setNewTaskText] = useState('');
+
+  // 4. Letters to Self State
+  const [letters, setLetters] = useState({
+    youngerSelf: {
+      text: "إلى طفلتي الصغيرة الجميلة ذات العينين الحالمتين..\nأريدكِ أن تعلمي أننا بخير. كل تلك المخاوف الصغيرة التي كانت تؤرق نومكِ تجاوزناها معاً بقوة ولطف. شكراً لأنكِ لم تستسلمي، وشكراً لأن نقاء قلبكِ ما زال يضيء طريقي حتى اليوم. أنا فخورة جداً بكِ وبضحكتكِ التي ما زالت رنّتها في مسمعي.",
+      lastUpdated: '2026-05-17'
+    },
+    presentSelf: {
+      text: "إلى نفسي الرائعة في الحاضر..\nأنتِ تبذلين قصارى جهدكِ، وهذا كافٍ جداً. ممتنة لكل تفاصيلكِ، لقوتكِ في اللحظات الصامتة، لابتسامتكِ رغم التعب، ولقدرتكِ على العطاء. تذكري دائماً أن تعاملي نفسكِ بلين ورفق، فأنتِ تستحقين هذا الحب والدفء الذي تمنحينه للآخرين.",
+      lastUpdated: '2026-05-17'
+    }
+  });
+
+  const [editingLetter, setEditingLetter] = useState(null); 
+  const [tempLetterText, setTempLetterText] = useState('');
+
+  // 5. Strategic Planning, Values, & Vision State (The requested features)
+  const [vision, setVision] = useState("أن أكون منارة أثر طيب ولطيف في محيطي، وأطور مهاراتي الإبداعية باستمرار لأصنع واقعاً يجمع بين السلام الداخلي والنجاح المهني المتميز.");
+  const [isEditingVision, setIsEditingVision] = useState(false);
+  const [tempVisionText, setTempVisionText] = useState('');
+
+  const [values, setValues] = useState([
+    { id: 1, name: 'السلام الداخلي', desc: 'الحفاظ على هدوء قلبي وتوازنه وسط زحام الحياة اليومية.' },
+    { id: 2, name: 'التطور المستمر', desc: 'السعي اليومي لاكتساب معرفة جديدة وتوسيع مداركي الإبداعية والعملية.' },
+    { id: 3, name: 'العطاء واللطف', desc: 'ترك أثر طيب وصنع فرق حقيقي وبسيط في حياة من حولي برفق ولين.' }
+  ]);
+  const [newValueName, setNewValueName] = useState('');
+  const [newValueDesc, setNewValueDesc] = useState('');
+
+  const [strategicGoals, setStrategicGoals] = useState([
+    { id: 1, title: 'إتقان اللغة الإنجليزية وتحدثها بطلاقة لفتح آفاق أوسع', type: 'شخصي', period: 'متوسط المدى', completed: false },
+    { id: 2, title: 'تأسيس الهوية البصرية لمشروعي الصغير الخاص بالمنتجات الورقية والشموع المعطرة', type: 'مهني', period: 'قصير المدى', completed: true },
+    { id: 3, title: 'الوصول إلى الاستقلال المالي وبناء محفظة ادخار مستقلة', type: 'مالي', period: 'بعيد المدى', completed: false },
+    { id: 4, title: 'ممارسة الرياضة بانتظام 3 مرات أسبوعياً لتعزيز الصحة والنشاط البدني', type: 'صحي', period: 'قصير المدى', completed: false }
+  ]);
+  const [newGoalTitle, setNewGoalTitle] = useState('');
+  const [newGoalType, setNewGoalType] = useState('شخصي');
+  const [newGoalPeriod, setNewGoalPeriod] = useState('قصير المدى');
+
+  // Brainstorming Actions
+  const handleAddIdea = (e) => {
+    e.preventDefault();
+    if (!newIdeaTitle.trim()) return;
+    const colors = ['bg-rose-50', 'bg-pink-50', 'bg-amber-50/60', 'bg-purple-50'];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    const newIdea = {
+      id: Date.now(),
+      title: newIdeaTitle,
+      desc: newIdeaDesc,
+      tag: newIdeaTag,
+      date: new Date().toISOString().split('T')[0],
+      color: randomColor
+    };
+    setIdeas([newIdea, ...ideas]);
+    setNewIdeaTitle('');
+    setNewIdeaDesc('');
+  };
+
+  const handleDeleteIdea = (id) => {
+    setIdeas(ideas.filter(idea => idea.id !== id));
+  };
+
+  // Daily Tasks Actions
+  const handleAddTask = (e) => {
+    e.preventDefault();
+    if (!newTaskText.trim()) return;
+    const newTask = {
+      id: Date.now(),
+      text: newTaskText,
+      completed: false
+    };
+    setTasks([...tasks, newTask]);
+    setNewTaskText('');
+  };
+
+  const toggleTask = (id) => {
+    setTasks(tasks.map(task => 
+      task.id === id ? { ...task, completed: !task.completed } : task
+    ));
+  };
+
+  const handleDeleteTask = (id) => {
+    setTasks(tasks.filter(task => task.id !== id));
+  };
+
+  // Letters Actions
+  const startEditingLetter = (type) => {
+    setEditingLetter(type);
+    setTempLetterText(letters[type].text);
+  };
+
+  const saveLetter = () => {
+    setLetters({
+      ...letters,
+      [editingLetter]: {
+        text: tempLetterText,
+        lastUpdated: new Date().toISOString().split('T')[0]
+      }
+    });
+    setEditingLetter(null);
+  };
+
+  // Values Actions
+  const handleAddValue = (e) => {
+    e.preventDefault();
+    if (!newValueName.trim()) return;
+    const newValue = {
+      id: Date.now(),
+      name: newValueName,
+      desc: newValueDesc
+    };
+    setValues([...values, newValue]);
+    setNewValueName('');
+    setNewValueDesc('');
+  };
+
+  const handleDeleteValue = (id) => {
+    setValues(values.filter(val => val.id !== id));
+  };
+
+  // Strategic Goals Actions
+  const handleAddGoal = (e) => {
+    e.preventDefault();
+    if (!newGoalTitle.trim()) return;
+    const newGoal = {
+      id: Date.now(),
+      title: newGoalTitle,
+      type: newGoalType,
+      period: newGoalPeriod,
+      completed: false
+    };
+    setStrategicGoals([...strategicGoals, newGoal]);
+    setNewGoalTitle('');
+  };
+
+  const toggleGoal = (id) => {
+    setStrategicGoals(strategicGoals.map(goal => 
+      goal.id === id ? { ...goal, completed: !goal.completed } : goal
+    ));
+  };
+
+  const handleDeleteGoal = (id) => {
+    setStrategicGoals(strategicGoals.filter(goal => goal.id !== id));
+  };
+
+  const saveVision = () => {
+    setVision(tempVisionText);
+    setIsEditingVision(false);
+  };
+
+  const startEditingVision = () => {
+    setTempVisionText(vision);
+    setIsEditingVision(true);
+  };
+
+  // Computations
+  const completedCount = tasks.filter(t => t.completed).length;
+  const progressPercent = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0;
+
+  const completedGoalsCount = strategicGoals.filter(g => g.completed).length;
+  const goalsProgressPercent = strategicGoals.length > 0 ? Math.round((completedGoalsCount / strategicGoals.length) * 100) : 0;
+
+  const dailyQuotes = [
+    "أنتِ كافية، جميلة، وقادرة على صنع مساركِ الخاص بكل حب وقوة.",
+    "اعتنِ بقلبكِ الصغير أولاً، فمنه تشرق شمس حياتكِ بأكملها.",
+    "تذكري دائماً أن النمو يحتاج إلى وقت وصبر، كزهرة لطيفة تتفتح ببطء.",
+    "مساحتكِ الآمنة هي المكان الذي ينبض فيه قلبكِ بصدق دون تكلف.",
+    "ابتسامتكِ اليوم هي بمثابة هدية دافئة تقدمينها للعالم."
+  ];
+
+  const [quote, setQuote] = useState(dailyQuotes[0]);
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * dailyQuotes.length);
+    setQuote(dailyQuotes[randomIndex]);
+  }, [activeTab]);
+
+  return (
+    <div className="min-h-screen bg-[#FFF8F8] text-neutral-800 font-sans selection:bg-pink-100 flex flex-col justify-between" dir="rtl">
+      
+      {/* HEADER SECTION */}
+      <header className="sticky top-0 z-40 backdrop-blur-md bg-white/70 border-b border-rose-100/40 px-4 py-3 sm:py-4">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-400 via-pink-300 to-rose-200 flex items-center justify-center text-white shadow-md shadow-rose-200/50">
+              <Heart className="w-5 h-5 fill-current animate-pulse" />
+            </div>
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-rose-600 via-pink-600 to-rose-500 bg-clip-text text-transparent">
+                مَسَار | Masar
+              </h1>
+              <p className="text-xs text-rose-400 font-medium">مساحتكِ الشخصية الأكثر دفئاً وإلهاماً</p>
+            </div>
+          </div>
+
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center gap-1.5 bg-rose-50/60 p-1.5 rounded-2xl border border-rose-100/50">
+            <button 
+              onClick={() => setActiveTab('home')}
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${activeTab === 'home' ? 'bg-white text-rose-600 shadow-sm' : 'text-neutral-500 hover:text-rose-500'}`}
+            >
+              الرئيسية
+            </button>
+            <button 
+              onClick={() => setActiveTab('strategy')}
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${activeTab === 'strategy' ? 'bg-white text-rose-600 shadow-sm' : 'text-neutral-500 hover:text-rose-500'}`}
+            >
+              التخطيط والأهداف والقيم 🎯
+            </button>
+            <button 
+              onClick={() => setActiveTab('brainstorming')}
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${activeTab === 'brainstorming' ? 'bg-white text-rose-600 shadow-sm' : 'text-neutral-500 hover:text-rose-500'}`}
+            >
+              الأفكار الملهمة
+            </button>
+            <button 
+              onClick={() => setActiveTab('notes')}
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${activeTab === 'notes' ? 'bg-white text-rose-600 shadow-sm' : 'text-neutral-500 hover:text-rose-500'}`}
+            >
+              ملاحظات حرة
+            </button>
+            <button 
+              onClick={() => setActiveTab('tasks')}
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${activeTab === 'tasks' ? 'bg-white text-rose-600 shadow-sm' : 'text-neutral-500 hover:text-rose-500'}`}
+            >
+              المهام اليومية
+            </button>
+            <button 
+              onClick={() => setActiveTab('letters')}
+              className={`px-3 py-2 rounded-xl text-xs font-semibold transition-all ${activeTab === 'letters' ? 'bg-white text-rose-600 shadow-sm' : 'text-neutral-500 hover:text-rose-500'}`}
+            >
+              رسائل إلى نفسي
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs bg-rose-100 text-rose-600 px-3 py-1.5 rounded-full font-semibold border border-rose-200/50 flex items-center gap-1 shadow-sm">
+              <Sparkles className="w-3.5 h-3.5 animate-spin-slow" />
+              أنتِ مميزة
+            </span>
+          </div>
+        </div>
+      </header>
+
+      {/* MAIN CONTENT */}
+      <main className="flex-grow max-w-5xl mx-auto w-full px-4 py-6 sm:py-8">
+        
+        {/* Quote Banner */}
+        <div className="mb-8 p-5 rounded-3xl bg-gradient-to-r from-rose-50 to-pink-50/50 border border-rose-100/50 shadow-sm flex flex-col sm:flex-row items-center gap-4 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-rose-200/20 rounded-full blur-2xl -mr-6 -mt-6"></div>
+          <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-rose-400 shadow-sm flex-shrink-0">
+            <Sparkle className="w-6 h-6 text-rose-400 animate-pulse" />
+          </div>
+          <div className="text-center sm:text-right">
+            <span className="text-xs font-bold text-rose-500 tracking-wider block mb-1">إشراقة مسار اليومية ✨</span>
+            <p className="text-sm sm:text-base text-neutral-700 italic font-serif">"{quote}"</p>
+          </div>
+        </div>
+
+        {/* ----------------- 1. HOME TAB ----------------- */}
+        {activeTab === 'home' && (
+          <div className="space-y-8 animate-fade-in">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              
+              {/* Welcome Card */}
+              <div className="md:col-span-2 p-6 rounded-3xl bg-white border border-rose-100/40 shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[180px]">
+                <div className="absolute left-0 bottom-0 opacity-10 pointer-events-none translate-x-4 translate-y-4">
+                  <Heart className="w-48 h-48 text-rose-300" />
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-neutral-800 mb-2">أهلاً بكِ في واحتكِ الدافئة 🌸</h2>
+                  <p className="text-sm text-neutral-500 leading-relaxed max-w-lg">
+                    خُذي نفساً عميقاً.. دعي الأفكار تتدفق والروح تعبّر بكل حرية. هذا الفضاء مصمم ليجمع بين طموحكِ الاستراتيجي وقيمكِ الراسخة وعملكِ اليومي اللطيف ليتحققا معاً برفق وتوازن.
+                  </p>
+                </div>
+                <div className="flex gap-2 mt-4 flex-wrap">
+                  <button onClick={() => setActiveTab('strategy')} className="text-xs bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded-xl font-semibold transition-colors shadow-sm shadow-rose-200">
+                    حددي رؤيتكِ وأهدافكِ وقيمكِ
+                  </button>
+                  <button onClick={() => setActiveTab('brainstorming')} className="text-xs bg-pink-50 hover:bg-pink-100 text-rose-600 px-4 py-2 rounded-xl font-semibold transition-colors">
+                    دوني فكرة جديدة
+                  </button>
+                </div>
+              </div>
+
+              {/* Mood Tracker */}
+              <div className="p-6 rounded-3xl bg-white border border-rose-100/40 shadow-sm flex flex-col justify-between">
+                <div>
+                  <h3 className="text-base font-bold text-neutral-800 mb-1 flex items-center gap-2">
+                    <Smile className="w-5 h-5 text-rose-400" />
+                    كيف حال قلبكِ الآن؟
+                  </h3>
+                  <p className="text-xs text-neutral-400 mb-4">اختاري شعوركِ الحالي لترسيخ لحظتكِ:</p>
+                  
+                  <div className="grid grid-cols-4 gap-2 mb-4">
+                    {[
+                      { type: 'happy', emoji: '🌸', label: 'مبتهجة' },
+                      { type: 'calm', emoji: '✨', label: 'هادئة' },
+                      { type: 'tired', emoji: '🍂', label: 'مجهدة' },
+                      { type: 'thoughtful', emoji: '🌙', label: 'حالمة' }
+                    ].map((item) => (
+                      <button
+                        key={item.type}
+                        onClick={() => setMood(item.type)}
+                        className={`flex flex-col items-center p-2 rounded-2xl transition-all border ${
+                          mood === item.type 
+                            ? 'bg-rose-50/80 border-rose-300 text-rose-600 font-semibold scale-105 shadow-sm' 
+                            : 'bg-neutral-50 border-transparent text-neutral-500 hover:bg-rose-50/30'
+                        }`}
+                      >
+                        <span className="text-2xl mb-1">{item.emoji}</span>
+                        <span className="text-[10px]">{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="bg-rose-50/40 p-2.5 rounded-2xl border border-rose-100/40">
+                  <p className="text-xs text-rose-600/80 leading-relaxed font-serif text-center">
+                    {mood === 'happy' && "شعور رائع! أتمنى أن يدوم هذا البريق طوال يومكِ ويرسم الضحكة في كل خطوة."}
+                    {mood === 'calm' && "الهدوء هو نغمة الروح العذبة. استمتعي بهذه اللحظات المريحة والآمنة."}
+                    {mood === 'tired' && "أنتِ تبذلين مجهوداً رائعاً. خذي استراحة دافئة، كوب بابونج واستريحي قليلاً."}
+                    {mood === 'thoughtful' && "الأفكار الحالمة تصنع غداً جميلاً. اتركي العنان لروحكِ ولا تقيدي طموحكِ."}
+                  </p>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Quick Stats Grid */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-4 rounded-3xl bg-white border border-rose-100/30 shadow-sm flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-rose-50 flex items-center justify-center text-rose-500">
+                  <CheckCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-base font-bold text-neutral-800">{progressPercent}%</div>
+                  <div className="text-[11px] text-neutral-400">إنجاز المهام اليومية</div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-3xl bg-white border border-rose-100/30 shadow-sm flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center text-amber-500">
+                  <Target className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-base font-bold text-neutral-800">{goalsProgressPercent}%</div>
+                  <div className="text-[11px] text-neutral-400">إنجاز أهدافي الإستراتيجية</div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-3xl bg-white border border-rose-100/30 shadow-sm flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-pink-50 flex items-center justify-center text-pink-500">
+                  <Award className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-base font-bold text-neutral-800">{values.length}</div>
+                  <div className="text-[11px] text-neutral-400">قيمي الأساسية المحددة</div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-3xl bg-white border border-rose-100/30 shadow-sm flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-purple-50 flex items-center justify-center text-purple-500">
+                  <Sparkles className="w-5 h-5" />
+                </div>
+                <div>
+                  <div className="text-base font-bold text-neutral-800">{ideas.length}</div>
+                  <div className="text-[11px] text-neutral-400">أفكار ملهِمة دُوّنت</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Main Navigation Hub */}
+            <div>
+              <h3 className="text-lg font-bold text-neutral-800 mb-4 flex items-center gap-2">
+                <Heart className="w-5 h-5 text-rose-500 fill-current" />
+                تصفحي مساحاتكِ الإبداعية والاستراتيجية
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                {/* Strategic Planning Card */}
+                <div 
+                  onClick={() => setActiveTab('strategy')}
+                  className="group cursor-pointer p-5 rounded-3xl bg-gradient-to-br from-white to-pink-50 border border-pink-200 hover:border-pink-300 shadow-sm hover:shadow-md transition-all flex justify-between items-center"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-400 text-white flex items-center justify-center font-bold shadow-sm shadow-rose-200">
+                      🎯
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-neutral-800 group-hover:text-rose-600 transition-colors">مخططي الاستراتيجي والأهداف والقيم</h4>
+                      <p className="text-xs text-neutral-400">الرؤية، القيم الثابتة، والأهداف بمدياتها الزمنية</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-rose-300 group-hover:translate-x-[-4px] transition-transform" />
+                </div>
+
+                {/* Ideas & Brainstorming Card */}
+                <div 
+                  onClick={() => setActiveTab('brainstorming')}
+                  className="group cursor-pointer p-5 rounded-3xl bg-gradient-to-br from-white to-rose-50/30 border border-rose-100/30 hover:border-rose-200 shadow-sm hover:shadow-md transition-all flex justify-between items-center"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center font-bold">
+                      💡
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-neutral-800 group-hover:text-rose-600 transition-colors">مساحة العصف الذهني والأفكار</h4>
+                      <p className="text-xs text-neutral-400">سجّلي وموّلي وميضي الإبداعي قبل أن يزول</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-rose-300 group-hover:translate-x-[-4px] transition-transform" />
+                </div>
+
+                {/* Quick Notes Card */}
+                <div 
+                  onClick={() => setActiveTab('notes')}
+                  className="group cursor-pointer p-5 rounded-3xl bg-gradient-to-br from-white to-pink-50/30 border border-rose-100/30 hover:border-rose-200 shadow-sm hover:shadow-md transition-all flex justify-between items-center"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-pink-100 text-pink-600 flex items-center justify-center font-bold">
+                      📝
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-neutral-800 group-hover:text-pink-600 transition-colors">الملاحظات العامة السريعة</h4>
+                      <p className="text-xs text-neutral-400">مسودّتكِ الحرة السريعة، خربشة وكتابة بلا حدود</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-rose-300 group-hover:translate-x-[-4px] transition-transform" />
+                </div>
+
+                {/* Daily Tasks Card */}
+                <div 
+                  onClick={() => setActiveTab('tasks')}
+                  className="group cursor-pointer p-5 rounded-3xl bg-gradient-to-br from-white to-amber-50/30 border border-rose-100/30 hover:border-rose-200 shadow-sm hover:shadow-md transition-all flex justify-between items-center"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center font-bold">
+                      ✅
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-neutral-800 group-hover:text-amber-600 transition-colors">المهام اليومية وتتبع الإنجاز</h4>
+                      <p className="text-xs text-neutral-400">خطواتكِ الصغيرة والمنظمة نحو تحقيق الأفضل</p>
+                    </div>
+                  </div>
+                  <ChevronRight className="w-5 h-5 text-rose-300 group-hover:translate-x-[-4px] transition-transform" />
+                </div>
+
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ----------------- 2. STRATEGY, VISION & VALUES TAB ----------------- */}
+        {activeTab === 'strategy' && (
+          <div className="space-y-8 animate-fade-in">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-rose-100 pb-4">
+              <div>
+                <h2 className="text-xl font-bold text-neutral-800 flex items-center gap-2">
+                  <Compass className="w-5 h-5 text-rose-500" />
+                  مخططي الاستراتيجي ورؤيتي الخاصة
+                </h2>
+                <p className="text-xs text-neutral-400">قومي بصياغة رسالتكِ وتحديد القيم والأهداف التي ترسم مسار حياتكِ الرائعة</p>
+              </div>
+              <div className="text-xs bg-rose-100 text-rose-700 px-3 py-1 rounded-full font-semibold self-start md:self-auto">
+                أهدافي المكتملة: {completedGoalsCount} / {strategicGoals.length}
+              </div>
+            </div>
+
+            {/* الرؤية والرسالة الشخصية */}
+            <div className="bg-white p-6 rounded-3xl border border-rose-100/40 shadow-sm relative overflow-hidden">
+              <div className="absolute top-0 left-0 w-32 h-32 bg-pink-100/20 rounded-full blur-3xl -ml-10 -mt-10"></div>
+              <div className="flex items-center justify-between mb-4 relative z-10">
+                <h3 className="text-base font-bold text-neutral-800 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-rose-500" />
+                  رؤيتي ورسالتي الشخصية في الحياة
+                </h3>
+                {!isEditingVision ? (
+                  <button 
+                    onClick={startEditingVision}
+                    className="text-xs bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-1.5 rounded-xl font-bold transition-all flex items-center gap-1"
+                  >
+                    <Edit3 className="w-3 h-3" />
+                    تحديث الرؤية
+                  </button>
+                ) : null}
+              </div>
+
+              {isEditingVision ? (
+                <div className="space-y-3 relative z-10 animate-fade-in">
+                  <textarea
+                    rows="3"
+                    value={tempVisionText}
+                    onChange={(e) => setTempVisionText(e.target.value)}
+                    className="w-full p-4 rounded-2xl border border-rose-100 focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-200 bg-stone-50 text-sm font-serif leading-relaxed"
+                    placeholder="اكتبي رسالتكِ ورؤيتكِ الاستراتيجية في بضعة أسطر دافئة..."
+                  />
+                  <div className="flex justify-end gap-2">
+                    <button 
+                      onClick={() => setIsEditingVision(false)}
+                      className="px-3 py-1.5 rounded-xl text-xs font-semibold text-neutral-400 bg-neutral-100 hover:bg-neutral-200 transition-all"
+                    >
+                      إلغاء
+                    </button>
+                    <button 
+                      onClick={saveVision}
+                      className="px-4 py-1.5 rounded-xl text-xs font-semibold text-white bg-rose-500 hover:bg-rose-600 shadow-sm transition-all"
+                    >
+                      حفظ التحديث
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-stone-50/50 p-5 rounded-2xl border border-stone-100/50 font-serif text-sm sm:text-base text-neutral-600 leading-relaxed italic text-center relative z-10">
+                  "{vision || "لم تتم صياغة الرؤية بعد.. اضغطي على تحديث الرؤية للبدء."}"
+                </div>
+              )}
+            </div>
+
+            {/* قيمي الأساسية */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              {/* إضافة قيمة */}
+              <div className="bg-white p-6 rounded-3xl border border-rose-100/40 shadow-sm h-fit">
+                <h3 className="font-bold text-neutral-800 mb-2 flex items-center gap-2">
+                  <Award className="w-4 h-4 text-rose-500" />
+                  تحديد قيمي العليا
+                </h3>
+                <p className="text-xs text-neutral-400 mb-4">القيم هي البوصلة الداخلية التي توجه قراراتكِ واختياراتكِ.</p>
+
+                <form onSubmit={handleAddValue} className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-500 mb-1">اسم القيمة</label>
+                    <input 
+                      type="text" 
+                      placeholder="مثال: السلام، العطاء، التطور..."
+                      value={newValueName}
+                      onChange={(e) => setNewValueName(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-neutral-100 focus:outline-none focus:border-rose-300 bg-neutral-50 text-xs transition-all"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-500 mb-1">ماذا تعني لكِ هذه القيمة؟</label>
+                    <textarea 
+                      rows="2"
+                      placeholder="وصفي ما تمثله لكِ هذه القيمة..."
+                      value={newValueDesc}
+                      onChange={(e) => setNewValueDesc(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-neutral-100 focus:outline-none focus:border-rose-300 bg-neutral-50 text-xs transition-all resize-none"
+                    />
+                  </div>
+                  <button 
+                    type="submit"
+                    className="w-full py-2 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-semibold text-xs shadow-sm transition-all flex items-center justify-center gap-1"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    تثبيت القيمة في البوصلة
+                  </button>
+                </form>
+              </div>
+
+              {/* استعراض لوحة القيم */}
+              <div className="lg:col-span-2 space-y-4">
+                <h3 className="font-bold text-neutral-800 flex items-center gap-2">
+                  ✨ بوصلة قيمي الوجدانية ({values.length})
+                </h3>
+                {values.length === 0 ? (
+                  <div className="bg-white p-12 rounded-3xl text-center text-neutral-400 border border-rose-100/20">
+                    لم تحددي أياً من قيمكِ العليا بعد، أضيفي أول قيمة لتبدئي.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {values.map((val) => (
+                      <div key={val.id} className="p-5 rounded-2xl bg-gradient-to-tr from-white to-rose-50/20 border border-rose-100/30 shadow-sm flex flex-col justify-between">
+                        <div>
+                          <div className="flex justify-between items-start mb-2">
+                            <span className="text-xs bg-rose-100 text-rose-600 px-2.5 py-1 rounded-full font-bold">
+                              💎 قيمة أساسية
+                            </span>
+                            <button 
+                              onClick={() => handleDeleteValue(val.id)}
+                              className="text-neutral-300 hover:text-rose-500 p-1"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                          <h4 className="font-bold text-neutral-800 text-sm mb-1">{val.name}</h4>
+                          <p className="text-xs text-neutral-500 leading-relaxed font-serif">{val.desc || "لا توجد تفاصيل مضافة لهذه القيمة."}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+            </div>
+
+            {/* الأهداف الاستراتيجية */}
+            <div className="border-t border-rose-100/40 pt-8">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                {/* إضافة هدف */}
+                <div className="bg-white p-6 rounded-3xl border border-rose-100/40 shadow-sm h-fit">
+                  <h3 className="font-bold text-neutral-800 mb-2 flex items-center gap-2">
+                    <Target className="w-4 h-4 text-rose-500" />
+                    إضافة هدف استراتيجي
+                  </h3>
+                  <p className="text-xs text-neutral-400 mb-4">قسمي طموحاتكِ الكبيرة إلى أهداف منظمة يسهل العمل عليها.</p>
+
+                  <form onSubmit={handleAddGoal} className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-neutral-500 mb-1">صياغة الهدف الاستراتيجي</label>
+                      <input 
+                        type="text" 
+                        placeholder="ما الذي تودين تحقيقه بدقة؟"
+                        value={newGoalTitle}
+                        onChange={(e) => setNewGoalTitle(e.target.value)}
+                        className="w-full px-3 py-2 rounded-xl border border-neutral-100 focus:outline-none focus:border-rose-300 bg-neutral-50 text-xs transition-all"
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-xs font-semibold text-neutral-500 mb-1">نوع المجال</label>
+                        <select 
+                          value={newGoalType} 
+                          onChange={(e) => setNewGoalType(e.target.value)}
+                          className="w-full px-2 py-2 rounded-xl border border-neutral-100 focus:outline-none focus:border-rose-300 bg-neutral-50 text-xs text-neutral-600"
+                        >
+                          <option value="مهني">مهني / أكاديمي</option>
+                          <option value="شخصي">شخصي / تطويري</option>
+                          <option value="مالي">استثمار مالي</option>
+                          <option value="صحي">صحي وروحي</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-neutral-500 mb-1">المدى الزمني</label>
+                        <select 
+                          value={newGoalPeriod} 
+                          onChange={(e) => setNewGoalPeriod(e.target.value)}
+                          className="w-full px-2 py-2 rounded-xl border border-neutral-100 focus:outline-none focus:border-rose-300 bg-neutral-50 text-xs text-neutral-600"
+                        >
+                          <option value="قصير المدى">قصير (أشهر)</option>
+                          <option value="متوسط المدى">متوسط (سنة)</option>
+                          <option value="بعيد المدى">بعيد (سنوات)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <button 
+                      type="submit"
+                      className="w-full py-2 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-xl font-semibold text-xs shadow-sm hover:opacity-90 transition-all flex items-center justify-center gap-1"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      إضافة الهدف لمخططي
+                    </button>
+                  </form>
+                </div>
+
+                {/* استعراض الأهداف */}
+                <div className="lg:col-span-2 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-neutral-800 flex items-center gap-2">
+                      📈 خارطة أهدافي الموزعة ({strategicGoals.length})
+                    </h3>
+                  </div>
+
+                  {strategicGoals.length === 0 ? (
+                    <div className="bg-white p-12 rounded-3xl text-center text-neutral-400 border border-rose-100/20">
+                      خارطة أهدافكِ خالية حالياً، ابدئي بكتابة هدفكِ الأول من القائمة الجانبية.
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {strategicGoals.map((goal) => (
+                        <div 
+                          key={goal.id} 
+                          className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                            goal.completed 
+                              ? 'bg-neutral-50 border-neutral-100/70 text-neutral-400 line-through' 
+                              : 'bg-white border-rose-100/30 hover:border-rose-200'
+                          }`}
+                        >
+                          <div 
+                            onClick={() => toggleGoal(goal.id)}
+                            className="flex items-start gap-3 cursor-pointer flex-grow"
+                          >
+                            <div className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0 ${
+                              goal.completed 
+                                ? 'border-emerald-500 bg-emerald-500 text-white' 
+                                : 'border-rose-300 bg-white hover:border-rose-500'
+                            }`}>
+                              {goal.completed && <span className="text-[10px] font-bold">✓</span>}
+                            </div>
+                            <div>
+                              <span className="text-sm font-semibold leading-relaxed block">{goal.title}</span>
+                              <div className="flex gap-2 mt-1 flex-wrap">
+                                <span className={`text-[9px] px-2 py-0.5 rounded-full ${
+                                  goal.completed ? 'bg-neutral-100 text-neutral-400' : 'bg-rose-50 text-rose-600'
+                                }`}>
+                                  🏷️ {goal.type}
+                                </span>
+                                <span className={`text-[9px] px-2 py-0.5 rounded-full ${
+                                  goal.completed ? 'bg-neutral-100 text-neutral-400' : 'bg-pink-50 text-pink-600'
+                                }`}>
+                                  ⏱️ {goal.period}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          <button 
+                            onClick={() => handleDeleteGoal(goal.id)}
+                            className="p-1.5 text-neutral-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-all"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        )}
+
+        {/* ----------------- 3. BRAINSTORMING TAB ----------------- */}
+        {activeTab === 'brainstorming' && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-rose-100 pb-4">
+              <div>
+                <h2 className="text-xl font-bold text-neutral-800 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-rose-500" />
+                  مساحة الأفكار الإبداعية والملهمة
+                </h2>
+                <p className="text-xs text-neutral-400">دوني بريق إلهامكِ وصنّفيه ليصبح واقعاً ملموساً يوماً ما</p>
+              </div>
+              <span className="text-xs bg-rose-50 text-rose-600 px-3 py-1 rounded-full self-start md:self-auto">
+                عدد الأفكار الإجمالية: {ideas.length}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              <div className="bg-white p-6 rounded-3xl border border-rose-100/40 shadow-sm h-fit">
+                <h3 className="font-bold text-neutral-800 mb-4 flex items-center gap-2">
+                  <Edit3 className="w-4 h-4 text-rose-500" />
+                  صياغة ومضة جديدة
+                </h3>
+                
+                <form onSubmit={handleAddIdea} className="space-y-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-500 mb-1.5">عنوان الفكرة المُلهمة</label>
+                    <input 
+                      type="text" 
+                      placeholder="مثال: كتابة مقال ملهم، تجربة وصفة جديدة..."
+                      value={newIdeaTitle}
+                      onChange={(e) => setNewIdeaTitle(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-2xl border border-neutral-100 focus:outline-none focus:border-rose-300 focus:ring-2 focus:ring-rose-100 bg-neutral-50/50 text-sm transition-all"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-500 mb-1.5">تفاصيل الفكرة وتخيلكِ لها</label>
+                    <textarea 
+                      rows="4"
+                      placeholder="اكتبي تفاصيل إضافية، مشاعر، أو خطوات أولية..."
+                      value={newIdeaDesc}
+                      onChange={(e) => setNewIdeaDesc(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-2xl border border-neutral-100 focus:outline-none focus:border-rose-300 focus:ring-2 focus:ring-rose-100 bg-neutral-50/50 text-sm transition-all resize-none"
+                    ></textarea>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-neutral-500 mb-1.5">تصنيف الفكرة</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {['إبداع', 'شخصي', 'عمل', 'أخرى'].map((tag) => (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => setNewIdeaTag(tag)}
+                          className={`py-1.5 rounded-xl text-xs font-medium border transition-all ${
+                            newIdeaTag === tag 
+                              ? 'bg-rose-500 text-white border-rose-500 shadow-sm' 
+                              : 'bg-neutral-50 border-neutral-100 text-neutral-500 hover:bg-neutral-100'
+                          }`}
+                        >
+                          {tag}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button 
+                    type="submit" 
+                    className="w-full py-3 bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-medium rounded-2xl transition-all shadow-md shadow-rose-200/50 flex items-center justify-center gap-2 text-sm"
+                  >
+                    <Plus className="w-4 h-4" />
+                    حفظ الفكرة في مساري
+                  </button>
+                </form>
+              </div>
+
+              <div className="lg:col-span-2 space-y-4">
+                {ideas.length === 0 ? (
+                  <div className="bg-white rounded-3xl border border-rose-100/30 p-12 text-center text-neutral-400">
+                    <p className="text-sm mb-2">مخزن الأفكار فارغ حالياً..</p>
+                    <p className="text-xs text-neutral-300">أضيفي أفكاراً إبداعية لتبقي شعلة طموحكِ متقدة.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {ideas.map((idea) => (
+                      <div 
+                        key={idea.id} 
+                        className={`p-5 rounded-3xl border border-rose-100/20 shadow-sm flex flex-col justify-between transition-transform hover:scale-[1.01] ${idea.color || 'bg-white'}`}
+                      >
+                        <div>
+                          <div className="flex items-center justify-between mb-3">
+                            <span className="text-[10px] bg-white/80 text-rose-600 px-2.5 py-1 rounded-full font-bold shadow-sm">
+                              📌 {idea.tag}
+                            </span>
+                            <span className="text-[10px] text-neutral-400">{idea.date}</span>
+                          </div>
+                          <h4 className="font-bold text-neutral-800 text-base mb-2 line-clamp-1">{idea.title}</h4>
+                          <p className="text-xs text-neutral-600 leading-relaxed whitespace-pre-line line-clamp-4">
+                            {idea.desc || 'لا توجد تفاصيل إضافية مكتوبة لهذه الفكرة المُلهمة.'}
+                          </p>
+                        </div>
+
+                        <div className="mt-4 pt-3 border-t border-neutral-100/50 flex justify-end">
+                          <button 
+                            onClick={() => handleDeleteIdea(idea.id)}
+                            className="p-1.5 text-rose-400 hover:text-rose-600 hover:bg-rose-100/50 rounded-lg transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* ----------------- 4. QUICK NOTES TAB ----------------- */}
+        {activeTab === 'notes' && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-rose-100 pb-4">
+              <div>
+                <h2 className="text-xl font-bold text-neutral-800 flex items-center gap-2">
+                  <Edit3 className="w-5 h-5 text-rose-500" />
+                  مساحة الملاحظات السريعة الحرة
+                </h2>
+                <p className="text-xs text-neutral-400">اكتبي كل ما ترغبين فيه هنا، يتم حفظ مسودتكِ تلقائياً في ذاكرة المتصفح النشطة</p>
+              </div>
+            </div>
+
+            <div className="bg-white rounded-3xl border border-rose-100/40 shadow-sm overflow-hidden">
+              <div className="bg-gradient-to-r from-rose-500 to-pink-500 px-6 py-4 text-white flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-rose-200 animate-ping"></span>
+                  <span className="text-sm font-semibold font-serif">مذكرة اليوم المفتوحة 📓</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-xs bg-white/20 px-3 py-1 rounded-full">
+                    مستمر في التحرير الحُر
+                  </span>
+                </div>
+              </div>
+
+              <div className="p-6 relative">
+                <div className="absolute inset-x-0 top-0 bottom-0 pointer-events-none bg-repeating-linear bg-neutral-100/30" style={{ backgroundImage: 'linear-gradient(#f9fafb 1px, transparent 1px)', backgroundSize: '100% 2rem', marginTop: '1.5rem' }}></div>
+                
+                <textarea
+                  value={quickNote}
+                  onChange={(e) => setQuickNote(e.target.value)}
+                  placeholder="ابدئي بالكتابة الحرّة هنا..."
+                  className="w-full min-h-[400px] text-neutral-700 bg-transparent relative z-10 focus:outline-none text-base leading-[2rem] font-serif resize-y"
+                  style={{ lineHeight: '2rem' }}
+                />
+              </div>
+
+              <div className="bg-neutral-50 px-6 py-3 border-t border-rose-100/40 flex flex-col sm:flex-row items-center justify-between gap-2">
+                <span className="text-xs text-neutral-400">
+                  عدد الحروف المكتوبة: <strong className="text-rose-500">{quickNote.length}</strong> حرف
+                </span>
+                <span className="text-xs text-neutral-400 flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block"></span>
+                  نشط وجاهز للتعديل الفوري
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ----------------- 5. DAILY TASKS TAB ----------------- */}
+        {activeTab === 'tasks' && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-rose-100 pb-4">
+              <div>
+                <h2 className="text-xl font-bold text-neutral-800 flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5 text-rose-500" />
+                  تتبع المهام اليومية والخطوات
+                </h2>
+                <p className="text-xs text-neutral-400">النجاح هو تراكم خطواتكِ البسيطة المتقنة كل يوم</p>
+              </div>
+              <span className="text-xs bg-rose-50 text-rose-600 px-3 py-1 rounded-full self-start md:self-auto">
+                اكتمل اليوم: {completedCount} من أصل {tasks.length}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              
+              <div className="bg-white p-6 rounded-3xl border border-rose-100/40 shadow-sm flex flex-col justify-between gap-6 h-fit">
+                <div>
+                  <h3 className="font-bold text-neutral-800 mb-1 flex items-center gap-2">
+                    📊
+                    مستوى الإنجاز لليوم
+                  </h3>
+                  <p className="text-xs text-neutral-400 mb-6">مؤشر التقدم الإيجابي لخطواتكِ الشخصية</p>
+                  
+                  <div className="space-y-4">
+                    <div className="relative pt-1">
+                      <div className="flex mb-2 items-center justify-between">
+                        <div>
+                          <span className="text-xs font-semibold inline-block py-1 px-2.5 uppercase rounded-full text-rose-600 bg-rose-50">
+                            معدل الإنجاز الحالي
+                          </span>
+                        </div>
+                        <div className="text-right">
+                          <span className="text-sm font-bold inline-block text-rose-600">
+                            {progressPercent}%
+                          </span>
+                        </div>
+                      </div>
+                      <div className="overflow-hidden h-3 mb-4 text-xs flex rounded-full bg-rose-100/50">
+                        <div 
+                          style={{ width: `${progressPercent}%` }} 
+                          className="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-rose-400 to-pink-500 transition-all duration-500"
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-2xl bg-gradient-to-tr from-rose-50/50 to-pink-50/50 border border-rose-100/50">
+                  <h4 className="text-xs font-bold text-rose-500 mb-1">💡 كلمة لكِ:</h4>
+                  <p className="text-xs text-neutral-600 leading-relaxed">
+                    {progressPercent === 100 
+                      ? "رائعة ومذهلة! لقد أنجزتِ كل مهامكِ لليوم بنجاح، استرخي واستمتعي بوقتكِ الآن."
+                      : progressPercent >= 50 
+                      ? "إنجاز رائع! لقد قطعتِ منتصف الطريق، خطوات بسيطة تفصلكِ عن الاكتمال التام."
+                      : progressPercent > 0 
+                      ? "بداية مُمتازة لليوم، تذكري دائماً أن خطوة واحدة بسيطة أفضل من السكون الكلي."
+                      : "يومكِ يبدأ الآن بلطف، حددي مهامكِ البسيطة وابدئي الإنجاز الهادئ."}
+                  </p>
+                </div>
+              </div>
+
+              <div className="lg:col-span-2 space-y-4">
+                
+                <form onSubmit={handleAddTask} className="flex gap-2 bg-white p-2 rounded-2xl border border-rose-100/40 shadow-sm">
+                  <input 
+                    type="text" 
+                    placeholder="اكتبي مهمة يومية جديدة هنا برفق..."
+                    value={newTaskText}
+                    onChange={(e) => setNewTaskText(e.target.value)}
+                    className="flex-grow px-4 py-2 bg-transparent text-sm focus:outline-none"
+                  />
+                  <button 
+                    type="submit"
+                    className="bg-rose-500 hover:bg-rose-600 text-white px-5 py-2.5 rounded-xl font-medium transition-colors text-xs flex items-center gap-1.5 shadow-sm shadow-rose-200"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    إضافة
+                  </button>
+                </form>
+
+                <div className="bg-white rounded-3xl border border-rose-100/40 shadow-sm p-6 space-y-3">
+                  {tasks.length === 0 ? (
+                    <div className="text-center py-8 text-neutral-400">
+                      <p className="text-sm">لا توجد مهام مضافة في مفكرتكِ بعد.</p>
+                      <p className="text-xs text-neutral-300 mt-1">ابدئي كتابة قائمة أعمالكِ البسيطة بالأعلى.</p>
+                    </div>
+                  ) : (
+                    tasks.map((task) => (
+                      <div 
+                        key={task.id} 
+                        className={`flex items-center justify-between p-3.5 rounded-2xl border transition-all ${
+                          task.completed 
+                            ? 'bg-neutral-50/60 border-neutral-100 text-neutral-400 line-through' 
+                            : 'bg-white border-rose-100/40 text-neutral-700 hover:border-rose-200'
+                        }`}
+                      >
+                        <div 
+                          onClick={() => toggleTask(task.id)}
+                          className="flex items-center gap-3 cursor-pointer flex-grow"
+                        >
+                          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all flex-shrink-0 ${
+                            task.completed 
+                              ? 'border-emerald-500 bg-emerald-500 text-white' 
+                              : 'border-rose-300 bg-white hover:border-rose-500'
+                          }`}>
+                            {task.completed && <span className="text-[10px] font-bold">✓</span>}
+                          </div>
+                          <span className="text-sm font-medium leading-relaxed">{task.text}</span>
+                        </div>
+
+                        <button 
+                          onClick={() => handleDeleteTask(task.id)}
+                          className="p-1 text-neutral-300 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors flex-shrink-0"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        )}
+
+        {/* ----------------- 6. LETTERS TO SELF TAB ----------------- */}
+        {activeTab === 'letters' && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-rose-100 pb-4">
+              <div>
+                <h2 className="text-xl font-bold text-neutral-800 flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-rose-500" />
+                  مساحة الرسائل الوجدانية العميقة
+                </h2>
+                <p className="text-xs text-neutral-400">ملاذكِ الشخصي للبوح بصدق والامتنان لذاتكِ في مختلف محطاتها العمرية</p>
+              </div>
+            </div>
+
+            {editingLetter ? (
+              <div className="bg-white rounded-3xl border border-rose-100/40 shadow-sm overflow-hidden animate-fade-in">
+                <div className="bg-gradient-to-r from-rose-500 to-pink-500 px-6 py-4 text-white flex justify-between items-center">
+                  <h3 className="font-bold text-sm sm:text-base">
+                    {editingLetter === 'youngerSelf' ? '✍️ تعديل الرسالة للطفلة التي بداخلكِ' : '✍️ تعديل الرسالة لتعزيز قوتكِ الحالية'}
+                  </h3>
+                  <button 
+                    onClick={() => setEditingLetter(null)}
+                    className="text-xs bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-xl font-medium transition-colors"
+                  >
+                    إلغاء
+                  </button>
+                </div>
+
+                <div className="p-6">
+                  <textarea
+                    rows="12"
+                    value={tempLetterText}
+                    onChange={(e) => setTempLetterText(e.target.value)}
+                    className="w-full text-neutral-700 bg-stone-50/50 border border-rose-100/50 rounded-2xl p-4 text-base leading-relaxed font-serif focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-200 resize-none"
+                    placeholder="اكتبي مشاعركِ وامتنانكِ بلطف وود هنا..."
+                  ></textarea>
+
+                  <div className="mt-4 flex justify-end gap-2">
+                    <button 
+                      onClick={() => setEditingLetter(null)}
+                      className="px-4 py-2 rounded-xl text-xs font-semibold text-neutral-400 hover:text-neutral-600 bg-neutral-100 transition-colors"
+                    >
+                      تراجع
+                    </button>
+                    <button 
+                      onClick={saveLetter}
+                      className="px-5 py-2 rounded-xl text-xs font-semibold text-white bg-rose-500 hover:bg-rose-600 shadow-sm shadow-rose-200 transition-colors"
+                    >
+                      حفظ الرسالة الوجدانية
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                {/* Letter to Younger Self */}
+                <div className="bg-white rounded-3xl border border-rose-100/40 shadow-sm overflow-hidden flex flex-col justify-between">
+                  <div className="bg-rose-50 p-6 flex items-center justify-between border-b border-rose-100/40">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center font-bold text-lg">
+                        🧸
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-neutral-800 text-base">رسالة لنفسي وأنا صغيرة</h3>
+                        <p className="text-[10px] text-neutral-400">آخر تعديل: {letters.youngerSelf.lastUpdated}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-6 flex-grow">
+                    <div className="bg-stone-50/70 p-4 rounded-2xl border border-stone-100 font-serif text-sm text-neutral-600 leading-relaxed whitespace-pre-line min-h-[160px] max-h-[220px] overflow-y-auto font-normal">
+                      {letters.youngerSelf.text}
+                    </div>
+                  </div>
+
+                  <div className="bg-neutral-50 px-6 py-4 border-t border-rose-100/20 flex justify-between items-center">
+                    <span className="text-[10px] text-rose-500/80 font-semibold">رسالة دافئة للطفلة التي بداخلكِ 🌸</span>
+                    <button 
+                      onClick={() => startEditingLetter('youngerSelf')}
+                      className="text-xs bg-rose-50 hover:bg-rose-100 text-rose-600 px-4 py-2 rounded-xl font-bold transition-colors flex items-center gap-1.5"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                      تعديل وبوح
+                    </button>
+                  </div>
+                </div>
+
+                {/* Letter to Present Self */}
+                <div className="bg-white rounded-3xl border border-rose-100/40 shadow-sm overflow-hidden flex flex-col justify-between">
+                  <div className="bg-pink-50 p-6 flex items-center justify-between border-b border-pink-100/40">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center font-bold text-lg">
+                        👑
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-neutral-800 text-base">رسالة لنفسي في الحاضر</h3>
+                        <p className="text-[10px] text-neutral-400">آخر تعديل: {letters.presentSelf.lastUpdated}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-6 flex-grow">
+                    <div className="bg-stone-50/70 p-4 rounded-2xl border border-stone-100 font-serif text-sm text-neutral-600 leading-relaxed whitespace-pre-line min-h-[160px] max-h-[220px] overflow-y-auto">
+                      {letters.presentSelf.text}
+                    </div>
+                  </div>
+
+                  <div className="bg-neutral-50 px-6 py-4 border-t border-rose-100/20 flex justify-between items-center">
+                    <span className="text-[10px] text-pink-500/80 font-semibold">لتعزيز قوتكِ وامتنانكِ الحالي ✨</span>
+                    <button 
+                      onClick={() => startEditingLetter('presentSelf')}
+                      className="text-xs bg-pink-50 hover:bg-pink-100 text-pink-600 px-4 py-2 rounded-xl font-bold transition-colors flex items-center gap-1.5"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                      تعديل وبوح
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            )}
+          </div>
+        )}
+
+      </main>
+
+      {/* FOOTER SECTION */}
+      <footer className="bg-white border-t border-rose-100/40 py-6 text-center text-xs text-neutral-400 mt-12 pb-24 lg:pb-6">
+        <div className="max-w-5xl mx-auto px-4 space-y-2">
+          <p className="font-semibold text-rose-500">مسار | Masar © 2026</p>
+          <p>جميع بياناتكِ الاستراتيجية والإبداعية والوجدانية محفوظة بأمان وخصوصية تامة على جهازكِ.</p>
+          <div className="flex justify-center gap-3 text-rose-300 pt-2">
+            <span>• رؤية واضحة</span>
+            <span>• قيم ثابتة</span>
+            <span>• وعي نقي</span>
+          </div>
+        </div>
+      </footer>
+
+      {/* Mobile Navigation Bar */}
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-50 bg-white/95 backdrop-blur-md border-t border-rose-100/80 px-2 py-2 flex justify-around items-center shadow-lg shadow-rose-300/20">
+        <button 
+          onClick={() => setActiveTab('home')}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${activeTab === 'home' ? 'text-rose-600 scale-105 font-bold' : 'text-neutral-400'}`}
+        >
+          <Heart className="w-5 h-5 fill-current" />
+          <span className="text-[10px]">الرئيسية</span>
+        </button>
+
+        <button 
+          onClick={() => setActiveTab('strategy')}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${activeTab === 'strategy' ? 'text-rose-600 scale-105 font-bold' : 'text-neutral-400'}`}
+        >
+          <Compass className="w-5 h-5" />
+          <span className="text-[10px]">التخطيط</span>
+        </button>
+
+        <button 
+          onClick={() => setActiveTab('brainstorming')}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${activeTab === 'brainstorming' ? 'text-rose-600 scale-105 font-bold' : 'text-neutral-400'}`}
+        >
+          <Sparkles className="w-5 h-5" />
+          <span className="text-[10px]">الأفكار</span>
+        </button>
+
+        <button 
+          onClick={() => setActiveTab('tasks')}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${activeTab === 'tasks' ? 'text-rose-600 scale-105 font-bold' : 'text-neutral-400'}`}
+        >
+          <CheckCircle className="w-5 h-5" />
+          <span className="text-[10px]">المهام</span>
+        </button>
+
+        <button 
+          onClick={() => setActiveTab('letters')}
+          className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${activeTab === 'letters' ? 'text-rose-600 scale-105 font-bold' : 'text-neutral-400'}`}
+        >
+          <BookOpen className="w-5 h-5" />
+          <span className="text-[10px]">الرسائل</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+```
